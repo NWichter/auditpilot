@@ -60,8 +60,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export function BenfordChart({ data }: BenfordChartProps) {
   const chartData = Array.from({ length: 9 }, (_, i) => {
     const digit = i + 1;
-    const expected = data.expected[i] ?? 0;
-    const observed = data.observed[i] ?? 0;
+    const expected = (data.expected[i] ?? 0) * 100;
+    const observed = (data.observed[i] ?? 0) * 100;
     return {
       digit: String(digit),
       Expected: parseFloat(expected.toFixed(2)),
