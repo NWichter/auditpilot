@@ -103,22 +103,39 @@ interface CustomTooltipProps {
     value: number;
     color: string;
     dataKey: string;
+    payload: Record<string, number | string>;
   }>;
   label?: string;
+  rawValues?: Record<string, number[]>;
+  years?: number[];
 }
 
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  rawValues,
+  years,
+}: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
     <div className="rounded border border-slate-700 bg-slate-800 p-3 text-sm text-slate-100 shadow-lg min-w-[160px]">
       <p className="font-semibold mb-2 text-slate-300">{label}</p>
       {payload.map((p) => {
         const metric = METRICS.find((m) => m.key === p.dataKey);
+        // Find the year index to look up the raw value
+        const yearIdx = years?.indexOf(Number(label)) ?? -1;
+        const rawVal =
+          rawValues && yearIdx >= 0
+            ? rawValues[p.dataKey]?.[yearIdx]
+            : undefined;
         return (
           <div key={p.dataKey} className="flex justify-between gap-4 text-xs">
             <span style={{ color: p.color }}>{p.name}</span>
             <span className="font-mono text-slate-200">
-              {metric ? metric.format(p.value) : p.value.toFixed(2)}
+              {metric && rawVal !== undefined
+                ? metric.format(rawVal)
+                : p.value.toFixed(2)}
             </span>
           </div>
         );
@@ -130,28 +147,41 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export function TimelineChart({ data }: TimelineChartProps) {
   const [active, setActive] = useState<Set<string>>(new Set(DEFAULT_ACTIVE));
 
+  // Raw values per metric (needed for tooltip formatting and outlier detection)
+  const rawValues = useMemo(() => {
+    const result: Record<string, number[]> = {};
+    for (const m of METRICS) {
+      result[m.key] = data.statements.map((s) => m.getValue(s));
+    }
+    return result;
+  }, [data]);
+
+  // Chart data with normalized values so all metrics share the same Y axis
   const chartData = useMemo(() => {
-    return data.statements.map((stmt) => {
+    const normMap: Record<string, number[]> = {};
+    for (const m of METRICS) {
+      normMap[m.key] = normalize(rawValues[m.key]);
+    }
+    return data.statements.map((stmt, i) => {
       const row: Record<string, number | string> = { year: stmt.year };
       for (const m of METRICS) {
-        row[m.key] = m.getValue(stmt);
+        row[m.key] = normMap[m.key][i];
       }
       return row;
     });
-  }, [data]);
+  }, [data, rawValues]);
 
-  // Outliers per metric
+  // Outliers per metric (detect on normalized values)
   const outliers = useMemo(() => {
     const result: Record<string, number[]> = {};
     for (const m of METRICS) {
       if (!active.has(m.key)) continue;
-      const values = data.statements.map((s) => m.getValue(s));
-      const normalizedVals = normalize(values);
+      const normalizedVals = normalize(rawValues[m.key]);
       const outlierIdxs = detectOutliers(normalizedVals);
       result[m.key] = Array.from(outlierIdxs);
     }
     return result;
-  }, [data, active]);
+  }, [rawValues, active]);
 
   const toggleMetric = (key: string) => {
     setActive((prev) => {
@@ -211,7 +241,14 @@ export function TimelineChart({ data }: TimelineChartProps) {
               offset: 10,
             }}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip
+            content={
+              <CustomTooltip
+                rawValues={rawValues}
+                years={data.statements.map((s) => s.year)}
+              />
+            }
+          />
           <Legend wrapperStyle={{ color: "#94a3b8", fontSize: 12 }} />
           <Brush
             dataKey="year"
@@ -221,29 +258,19 @@ export function TimelineChart({ data }: TimelineChartProps) {
             travellerWidth={6}
           />
 
-          {activeMetrics.map((m) => {
-            const values = data.statements.map((s) => m.getValue(s));
-            const norm = normalize(values);
-            const normData = chartData.map((row, i) => ({
-              ...row,
-              [m.key]: norm[i],
-            }));
-
-            return (
-              <Line
-                key={m.key}
-                type="monotone"
-                dataKey={m.key}
-                name={m.label}
-                stroke={m.color}
-                strokeWidth={2}
-                dot={{ r: 3, fill: m.color }}
-                activeDot={{ r: 5 }}
-                animationDuration={800}
-                data={normData}
-              />
-            );
-          })}
+          {activeMetrics.map((m) => (
+            <Line
+              key={m.key}
+              type="monotone"
+              dataKey={m.key}
+              name={m.label}
+              stroke={m.color}
+              strokeWidth={2}
+              dot={{ r: 3, fill: m.color }}
+              activeDot={{ r: 5 }}
+              animationDuration={800}
+            />
+          ))}
 
           {/* Outlier dots */}
           {activeMetrics.flatMap((m) =>
