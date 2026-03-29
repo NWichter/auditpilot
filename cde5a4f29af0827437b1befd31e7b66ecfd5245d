@@ -1,0 +1,29 @@
+lib/jstat.d.ts
+  58e2c1a98cefc3ba 1-7
+lib/parser.ts
+  58e2c1a98cefc3ba 252
+app/dashboard/page.tsx
+  58e2c1a98cefc3ba 394
+components/ratio-table.tsx
+  58e2c1a98cefc3ba 4,32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "cde5a4f29af0827437b1befd31e7b66ecfd5245d",
+  "prompts": {
+    "58e2c1a98cefc3ba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "22c8fe49-7f8d-4dcc-96db-b58143c6fc6e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Niklas Wichter <niklas.wichter@neotube.de>",
+      "messages": [],
+      "total_additions": 12,
+      "total_deletions": 6,
+      "accepted_lines": 11,
+      "overriden_lines": 0
+    }
+  }
+}
