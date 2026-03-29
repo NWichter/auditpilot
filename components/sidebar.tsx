@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   TrendingUp,
   FileText,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,23 +24,27 @@ const navItems = [
   { label: "Financial Ratios", icon: Calculator, href: "/dashboard/ratios" },
   { label: "Red Flags", icon: AlertTriangle, href: "/dashboard/redflags" },
   { label: "Timeline", icon: TrendingUp, href: "/dashboard/timeline" },
-  { label: "AI Report", icon: FileText, href: "/dashboard/report" },
+  { label: "Report", icon: FileText, href: "/dashboard/report" },
 ];
 
-function getRiskBadgeColor(score: number) {
-  if (score < 30)
-    return "bg-green-500/20 text-green-400 border border-green-500/30";
-  if (score < 60)
-    return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
-  if (score < 80)
-    return "bg-orange-500/20 text-orange-400 border border-orange-500/30";
-  return "bg-red-500/20 text-red-400 border border-red-500/30";
+function getRiskColor(score: number) {
+  if (score < 30) return "text-emerald-400";
+  if (score < 60) return "text-amber-400";
+  if (score < 80) return "text-orange-400";
+  return "text-red-400";
+}
+
+function getRiskDotColor(score: number) {
+  if (score < 30) return "bg-emerald-400/70";
+  if (score < 60) return "bg-amber-400/70";
+  if (score < 80) return "bg-orange-400/70";
+  return "bg-red-400/70";
 }
 
 function getRiskLabel(score: number) {
-  if (score < 30) return "Low";
-  if (score < 60) return "Medium";
-  if (score < 80) return "High";
+  if (score < 30) return "Low Risk";
+  if (score < 60) return "Medium Risk";
+  if (score < 80) return "High Risk";
   return "Critical";
 }
 
@@ -49,30 +54,50 @@ export function Sidebar({ companyName, riskScore }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-card border-r border-border flex-col z-40">
-        {/* Header */}
-        <div className="p-6 border-b border-border">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
-            Audit Pilot
-          </h2>
-          <p className="text-base font-semibold text-foreground truncate">
+      <aside className="hidden md:flex fixed left-0 top-0 h-full w-56 bg-card border-r border-white/[0.06] flex-col z-40">
+        {/* Logo */}
+        <div className="px-4 py-5 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-md bg-primary/10 border border-primary/20">
+              <Shield className="w-3.5 h-3.5 text-primary" />
+            </div>
+            <span className="text-xs font-semibold text-foreground tracking-wide">
+              AuditPilot
+            </span>
+          </div>
+        </div>
+
+        {/* Company info */}
+        <div className="px-4 py-4 border-b border-white/[0.06]">
+          <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-1.5">
+            Active Subject
+          </p>
+          <p className="text-sm font-medium text-foreground truncate leading-snug">
             {companyName}
           </p>
-          <div className="mt-2">
+          <div className="flex items-center gap-1.5 mt-2">
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
-                getRiskBadgeColor(riskScore),
+                "w-1.5 h-1.5 rounded-full shrink-0",
+                getRiskDotColor(riskScore),
+              )}
+            />
+            <span
+              className={cn(
+                "text-[11px] font-medium tabular-nums",
+                getRiskColor(riskScore),
               )}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-current" />
-              Risk: {riskScore} — {getRiskLabel(riskScore)}
+              {getRiskLabel(riskScore)}
+            </span>
+            <span className="text-[11px] text-muted-foreground tabular-nums ml-auto">
+              {riskScore}
             </span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
           {navItems.map(({ label, icon: Icon, href }) => {
             const isActive =
               href === "/dashboard"
@@ -83,13 +108,16 @@ export function Sidebar({ companyName, riskScore }: SidebarProps) {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-all duration-150 relative",
                   isActive
-                    ? "bg-primary/15 text-primary border border-primary/25"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                    ? "text-foreground bg-white/[0.06]"
+                    : "text-muted-foreground hover:text-foreground/80 hover:bg-white/[0.03]",
                 )}
               >
-                <Icon className="w-4 h-4 shrink-0" />
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-r-full" />
+                )}
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 {label}
               </Link>
             );
@@ -97,15 +125,15 @@ export function Sidebar({ companyName, riskScore }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border">
-          <p className="text-xs text-muted-foreground text-center">
-            AuditPilot v1.0
+        <div className="px-4 py-3 border-t border-white/[0.06]">
+          <p className="text-[11px] text-muted-foreground/40">
+            v1.0 &middot; Forensic Intelligence
           </p>
         </div>
       </aside>
 
       {/* Mobile bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-card border-t border-border z-40">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-card border-t border-white/[0.06] z-40">
         <div className="grid grid-cols-6 h-full">
           {navItems.map(({ label, icon: Icon, href }) => {
             const isActive =
@@ -117,15 +145,15 @@ export function Sidebar({ companyName, riskScore }: SidebarProps) {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 transition-colors",
+                  "flex flex-col items-center justify-center gap-1 transition-colors",
                   isActive
                     ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
+                    : "text-muted-foreground/50 hover:text-muted-foreground",
                 )}
                 title={label}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium leading-none hidden sm:block">
+                <Icon className="w-4 h-4" />
+                <span className="text-[9px] font-medium leading-none hidden sm:block">
                   {label}
                 </span>
               </Link>

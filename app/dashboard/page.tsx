@@ -10,6 +10,8 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  Area,
+  AreaChart,
 } from "recharts";
 import {
   AlertTriangle,
@@ -26,32 +28,32 @@ import { cn } from "@/lib/utils";
 
 function severityBadge(severity: "critical" | "warning" | "info") {
   if (severity === "critical")
-    return "bg-red-500/20 text-red-400 border border-red-500/30";
+    return "bg-red-500/10 text-red-400/90 border border-red-500/20";
   if (severity === "warning")
-    return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
-  return "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+    return "bg-amber-500/10 text-amber-400/90 border border-amber-500/20";
+  return "bg-blue-500/10 text-blue-400/90 border border-blue-500/20";
 }
 
 function statusDot(status: "green" | "yellow" | "red") {
-  if (status === "green") return "bg-green-500";
-  if (status === "yellow") return "bg-yellow-500";
-  return "bg-red-500";
+  if (status === "green") return "bg-emerald-400/70";
+  if (status === "yellow") return "bg-amber-400/70";
+  return "bg-red-400/70";
 }
 
 function beneishVerdictBadge(verdict: string) {
   if (verdict === "unlikely")
-    return "bg-green-500/20 text-green-400 border border-green-500/30";
+    return "bg-emerald-500/10 text-emerald-400/90 border border-emerald-500/20";
   if (verdict === "possible")
-    return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
-  return "bg-red-500/20 text-red-400 border border-red-500/30";
+    return "bg-amber-500/10 text-amber-400/90 border border-amber-500/20";
+  return "bg-red-500/10 text-red-400/90 border border-red-500/20";
 }
 
 function benfordVerdictBadge(verdict: string) {
   if (verdict === "conforming")
-    return "bg-green-500/20 text-green-400 border border-green-500/30";
+    return "bg-emerald-500/10 text-emerald-400/90 border border-emerald-500/20";
   if (verdict === "suspicious")
-    return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
-  return "bg-red-500/20 text-red-400 border border-red-500/30";
+    return "bg-amber-500/10 text-amber-400/90 border border-amber-500/20";
+  return "bg-red-500/10 text-red-400/90 border border-red-500/20";
 }
 
 function formatMillions(n: number) {
@@ -63,7 +65,11 @@ function formatMillions(n: number) {
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
 function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse bg-muted rounded", className)} />;
+  return (
+    <div
+      className={cn("animate-pulse bg-white/[0.04] rounded-lg", className)}
+    />
+  );
 }
 
 function LoadingSkeleton() {
@@ -82,6 +88,43 @@ function LoadingSkeleton() {
     </div>
   );
 }
+
+// ── Shared card wrapper ───────────────────────────────────────────────────────
+
+function CardPanel({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Link href={href} className="block">
+      <div
+        className={cn(
+          "card-glass rounded-lg p-5 h-64 transition-all duration-200 hover:bg-white/[0.04] hover:border-white/10 cursor-pointer",
+          className,
+        )}
+      >
+        {children}
+      </div>
+    </Link>
+  );
+}
+
+const tooltipStyle = {
+  contentStyle: {
+    background: "rgba(15, 17, 23, 0.95)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 6,
+    fontSize: 12,
+    backdropFilter: "blur(8px)",
+  },
+  labelStyle: { color: "#64748b" },
+  itemStyle: { color: "#cbd5e1" },
+};
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
@@ -151,25 +194,27 @@ export default function DashboardPage() {
         : "red";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
+      {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-xl font-semibold text-foreground tracking-tight">
           {company.companyName}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Fraud risk analysis overview
+        <p className="text-[13px] text-muted-foreground mt-0.5">
+          Financial risk analysis &middot; {company.statements.length} fiscal
+          years
         </p>
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {/* Risk Score */}
         <Link
           href="/dashboard/redflags"
-          className="bg-card rounded-lg border border-border p-4 flex flex-col items-center hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-200 hover:scale-[1.02]"
+          className="card-glass rounded-lg border p-4 flex flex-col items-center hover:bg-white/[0.04] hover:border-white/10 transition-all duration-200"
         >
           <RiskGauge score={riskScore.overall} size={160} />
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-[11px] text-muted-foreground mt-1 tracking-wide">
             Overall Risk Score
           </p>
         </Link>
@@ -220,199 +265,189 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom 2×2 grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* 1. Mini Benford bar chart */}
-        <Link href="/dashboard/benford" className="block">
-          <div className="bg-card rounded-lg border border-border p-4 h-64 hover:border-primary/40 transition-colors cursor-pointer">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                Benford Distribution
-              </h3>
-              <span
-                className={cn(
-                  "text-xs px-2 py-0.5 rounded-full font-medium",
-                  benfordVerdictBadge(benford.verdict),
-                )}
-              >
-                {benford.verdict}
-              </span>
-            </div>
-            <ResponsiveContainer width="100%" height="85%">
-              <BarChart data={benfordData} barGap={2}>
-                <XAxis
-                  dataKey="digit"
-                  tick={{ fill: "#94a3b8", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{
-                    background: "#1e293b",
-                    border: "1px solid #334155",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                  labelStyle={{ color: "#94a3b8" }}
-                  itemStyle={{ color: "#e2e8f0" }}
-                  formatter={(v) => [`${v}%`]}
-                />
-                <Bar
-                  dataKey="expected"
-                  fill="#334155"
-                  radius={[2, 2, 0, 0]}
-                  name="Expected"
-                />
-                <Bar
-                  dataKey="observed"
-                  fill="#3b82f6"
-                  radius={[2, 2, 0, 0]}
-                  name="Observed"
-                />
-              </BarChart>
-            </ResponsiveContainer>
+        <CardPanel href="/dashboard/benford">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[13px] font-semibold text-foreground">
+              Benford Distribution
+            </h3>
+            <span
+              className={cn(
+                "text-[11px] px-2 py-0.5 rounded font-medium",
+                benfordVerdictBadge(benford.verdict),
+              )}
+            >
+              {benford.verdict}
+            </span>
           </div>
-        </Link>
+          <ResponsiveContainer width="100%" height="82%">
+            <BarChart data={benfordData} barGap={2}>
+              <XAxis
+                dataKey="digit"
+                tick={{ fill: "#64748b", fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis hide />
+              <Tooltip {...tooltipStyle} formatter={(v) => [`${v}%`]} />
+              <Bar
+                dataKey="expected"
+                fill="rgba(255,255,255,0.06)"
+                radius={[2, 2, 0, 0]}
+                name="Expected"
+              />
+              <Bar
+                dataKey="observed"
+                fill="#3b82f6"
+                radius={[2, 2, 0, 0]}
+                name="Observed"
+                opacity={0.85}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardPanel>
 
         {/* 2. Top 5 red flags */}
-        <Link href="/dashboard/redflags" className="block">
-          <div className="bg-card rounded-lg border border-border p-4 h-64 overflow-hidden hover:border-primary/40 transition-colors cursor-pointer">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                Top Red Flags
-              </h3>
-              <span className="text-xs text-muted-foreground">
-                {redFlags.triggeredCount} triggered
-              </span>
-            </div>
-            {topFlags.length === 0 ? (
-              <p className="text-sm text-muted-foreground mt-6 text-center">
-                No red flags triggered
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {topFlags.map((flag) => (
-                  <li key={flag.id} className="flex items-start gap-2">
-                    <span
-                      className={cn(
-                        "text-xs px-2 py-0.5 rounded-full font-medium shrink-0 mt-0.5",
-                        severityBadge(flag.severity),
-                      )}
-                    >
-                      {flag.severity}
-                    </span>
-                    <span className="text-xs text-foreground/80 leading-relaxed line-clamp-2">
-                      {flag.name}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+        <CardPanel href="/dashboard/redflags" className="overflow-hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[13px] font-semibold text-foreground">
+              Top Red Flags
+            </h3>
+            <span className="text-[11px] text-muted-foreground tabular-nums">
+              {redFlags.triggeredCount} triggered
+            </span>
           </div>
-        </Link>
+          {topFlags.length === 0 ? (
+            <p className="text-[13px] text-muted-foreground mt-8 text-center">
+              No red flags triggered
+            </p>
+          ) : (
+            <ul className="space-y-2.5">
+              {topFlags.map((flag) => (
+                <li key={flag.id} className="flex items-start gap-2.5">
+                  <span
+                    className={cn(
+                      "text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0 mt-0.5 uppercase tracking-wide",
+                      severityBadge(flag.severity),
+                    )}
+                  >
+                    {flag.severity}
+                  </span>
+                  <span className="text-[12px] text-foreground/70 leading-relaxed line-clamp-2">
+                    {flag.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardPanel>
 
         {/* 3. Ratio status dots */}
-        <Link href="/dashboard/ratios" className="block">
-          <div className="bg-card rounded-lg border border-border p-4 h-64 overflow-auto hover:border-primary/40 transition-colors cursor-pointer">
-            <h3 className="text-sm font-semibold text-foreground mb-3">
-              Financial Ratios Summary
-            </h3>
-            <div className="space-y-3">
-              {ratioByCategory
-                .filter((cat) => cat.items.length > 0)
-                .map(({ label, items }) => (
-                  <div key={label}>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
-                      {label}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {items.map((ratio) => (
-                        <div
-                          key={ratio.name}
-                          className="flex items-center gap-1.5"
-                          title={`${ratio.name}: ${ratio.value.toFixed(2)}`}
-                        >
-                          <span
-                            className={cn(
-                              "w-2 h-2 rounded-full shrink-0",
-                              statusDot(ratio.status),
-                            )}
-                          />
-                          <span className="text-xs text-foreground/70 truncate max-w-[100px]">
-                            {ratio.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+        <CardPanel href="/dashboard/ratios" className="overflow-auto">
+          <h3 className="text-[13px] font-semibold text-foreground mb-4">
+            Financial Ratios
+          </h3>
+          <div className="space-y-3.5">
+            {ratioByCategory
+              .filter((cat) => cat.items.length > 0)
+              .map(({ label, items }) => (
+                <div key={label}>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest mb-2">
+                    {label}
+                  </p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                    {items.map((ratio) => (
+                      <div
+                        key={ratio.name}
+                        className="flex items-center gap-1.5"
+                        title={`${ratio.name}: ${ratio.value.toFixed(2)}`}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full shrink-0",
+                            statusDot(ratio.status),
+                          )}
+                        />
+                        <span className="text-[12px] text-foreground/60 truncate max-w-[96px]">
+                          {ratio.name}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-            </div>
+                </div>
+              ))}
           </div>
-        </Link>
+        </CardPanel>
 
-        {/* 4. Revenue + Net Income sparkline */}
-        <Link href="/dashboard/timeline" className="block">
-          <div className="bg-card rounded-lg border border-border p-4 h-64 hover:border-primary/40 transition-colors cursor-pointer">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                Revenue & Net Income
-              </h3>
-              <span className="text-xs text-muted-foreground">
-                Last 5 years
+        {/* 4. Revenue + Net Income area chart */}
+        <CardPanel href="/dashboard/timeline">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[13px] font-semibold text-foreground">
+              Revenue &amp; Net Income
+            </h3>
+            <span className="text-[11px] text-muted-foreground">
+              Last 5 years
+            </span>
+          </div>
+          <div className="flex items-center gap-5 mb-3">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-px bg-blue-400/80 inline-block" />
+              <span className="text-[11px] text-muted-foreground">Revenue</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-px bg-emerald-400/80 inline-block" />
+              <span className="text-[11px] text-muted-foreground">
+                Net Income
               </span>
             </div>
-            <div className="flex items-center gap-4 mb-2">
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 bg-blue-400 inline-block" />
-                <span className="text-xs text-muted-foreground">Revenue</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-0.5 bg-green-400 inline-block" />
-                <span className="text-xs text-muted-foreground">
-                  Net Income
-                </span>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height="75%">
-              <LineChart data={sparkData}>
-                <XAxis
-                  dataKey="year"
-                  tick={{ fill: "#94a3b8", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{
-                    background: "#1e293b",
-                    border: "1px solid #334155",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                  labelStyle={{ color: "#94a3b8" }}
-                  itemStyle={{ color: "#e2e8f0" }}
-                  formatter={(v) => [formatMillions(v as number)]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={false}
-                  name="Revenue"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="netIncome"
-                  stroke="#22c55e"
-                  strokeWidth={2}
-                  dot={false}
-                  name="Net Income"
-                />
-              </LineChart>
-            </ResponsiveContainer>
           </div>
-        </Link>
+          <ResponsiveContainer width="100%" height="70%">
+            <AreaChart data={sparkData}>
+              <defs>
+                <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="niGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4ade80" stopOpacity={0.12} />
+                  <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="year"
+                tick={{ fill: "#64748b", fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis hide />
+              <Tooltip
+                {...tooltipStyle}
+                formatter={(v) => [formatMillions(v as number)]}
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#3b82f6"
+                strokeWidth={1.5}
+                fill="url(#revGrad)"
+                dot={false}
+                name="Revenue"
+                strokeOpacity={0.8}
+              />
+              <Area
+                type="monotone"
+                dataKey="netIncome"
+                stroke="#4ade80"
+                strokeWidth={1.5}
+                fill="url(#niGrad)"
+                dot={false}
+                name="Net Income"
+                strokeOpacity={0.8}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardPanel>
       </div>
     </div>
   );

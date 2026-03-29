@@ -1,28 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0a0a0a;
-  --color-foreground: #fafafa;
-  --color-card: #111111;
-  --color-card-foreground: #fafafa;
-  --color-popover: #111111;
-  --color-popover-foreground: #fafafa;
+  --color-background: #09090b;
+  --color-foreground: #f1f5f9;
+  --color-card: #0f1117;
+  --color-card-foreground: #f1f5f9;
+  --color-popover: #0f1117;
+  --color-popover-foreground: #f1f5f9;
   --color-primary: #3b82f6;
-  --color-primary-foreground: #fafafa;
-  --color-secondary: #1e293b;
-  --color-secondary-foreground: #fafafa;
-  --color-muted: #1e293b;
-  --color-muted-foreground: #94a3b8;
-  --color-accent: #1e293b;
-  --color-accent-foreground: #fafafa;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #fafafa;
-  --color-border: #1e293b;
-  --color-input: #1e293b;
+  --color-primary-foreground: #f1f5f9;
+  --color-secondary: #161b27;
+  --color-secondary-foreground: #f1f5f9;
+  --color-muted: #161b27;
+  --color-muted-foreground: #64748b;
+  --color-accent: #161b27;
+  --color-accent-foreground: #f1f5f9;
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #f1f5f9;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-input: #161b27;
   --color-ring: #3b82f6;
-  --color-success: #22c55e;
-  --color-warning: #eab308;
-  --color-danger: #ef4444;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
   --radius: 0.5rem;
 }
 
@@ -30,7 +30,74 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family:
+    "Inter",
     system-ui,
     -apple-system,
     sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: glassmorphism card */
+.card-glass {
+  background: rgba(15, 17, 23, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Utility: gradient border */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.4),
+    rgba(99, 102, 241, 0.1)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Utility: gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tabular numbers for all numeric displays */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

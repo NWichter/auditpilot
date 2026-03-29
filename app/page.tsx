@@ -1,6 +1,12 @@
 "use client";
 
-import { Shield } from "lucide-react";
+import {
+  Shield,
+  ArrowRight,
+  TrendingUp,
+  AlertTriangle,
+  BarChart3,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { UploadZone } from "@/components/upload-zone";
 import { parseCSV } from "@/lib/parser";
@@ -8,38 +14,67 @@ import { parseCSV } from "@/lib/parser";
 interface CompanyCard {
   id: string;
   name: string;
+  ticker: string;
   type: string;
   years: string;
   description: string;
-  accentClass: string;
+  riskLevel: "high" | "critical" | "clean";
 }
 
 const COMPANIES: CompanyCard[] = [
   {
     id: "enron",
-    name: "Analyze Enron",
-    type: "Energy Corp",
+    name: "Enron Corporation",
+    ticker: "ENE",
+    type: "Energy",
     years: "1997–2001",
-    description: "Revenue manipulation & off-balance-sheet fraud",
-    accentClass: "border-red-500/40 hover:border-red-500/70",
+    description: "Revenue manipulation & off-balance-sheet entities",
+    riskLevel: "critical",
   },
   {
     id: "apple",
-    name: "Analyze Apple",
-    type: "Tech Giant",
+    name: "Apple Inc.",
+    ticker: "AAPL",
+    type: "Technology",
     years: "2019–2023",
-    description: "Clean financial benchmark",
-    accentClass: "border-green-500/40 hover:border-green-500/70",
+    description: "Reference benchmark — clean financial profile",
+    riskLevel: "clean",
   },
   {
     id: "worldcom",
-    name: "Analyze WorldCom",
-    type: "Telecom",
+    name: "WorldCom Inc.",
+    ticker: "WCOM",
+    type: "Telecommunications",
     years: "1999–2002",
-    description: "Expense capitalization fraud",
-    accentClass: "border-amber-500/40 hover:border-amber-500/70",
+    description: "Expense capitalization & accounting fraud",
+    riskLevel: "high",
   },
 ];
+
+const FEATURE_STATS = [
+  { value: "30+", label: "Financial Ratios" },
+  { value: "15", label: "Red Flag Detectors" },
+  { value: "8-var", label: "Beneish M-Score" },
+  { value: "9-digit", label: "Benford Analysis" },
+];
+
+function riskAccent(level: CompanyCard["riskLevel"]) {
+  if (level === "critical") return "border-red-500/20 hover:border-red-500/40";
+  if (level === "high") return "border-amber-500/20 hover:border-amber-500/40";
+  return "border-emerald-500/20 hover:border-emerald-500/40";
+}
+
+function riskDot(level: CompanyCard["riskLevel"]) {
+  if (level === "critical") return "bg-red-400/70";
+  if (level === "high") return "bg-amber-400/70";
+  return "bg-emerald-400/70";
+}
+
+function riskLabel(level: CompanyCard["riskLevel"]) {
+  if (level === "critical") return "Critical Risk";
+  if (level === "high") return "Elevated Risk";
+  return "Low Risk";
+}
 
 export default function HomePage() {
   const router = useRouter();
@@ -58,50 +93,97 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-4xl space-y-12">
-        {/* Logo + headline */}
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex items-center gap-3">
-            <Shield className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground">AuditPilot</h1>
+    <main className="min-h-screen bg-background flex items-center justify-center px-6 py-20">
+      <div className="w-full max-w-3xl space-y-16">
+        {/* Hero */}
+        <div className="flex flex-col items-center gap-5 text-center">
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+              <Shield className="h-5 w-5 text-primary" />
+            </div>
+            <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
+              AuditPilot
+            </span>
           </div>
-          <p className="text-lg text-muted-foreground">
-            Forensic Financial Intelligence
+
+          <h1 className="text-5xl font-bold tracking-tight text-gradient leading-tight">
+            Forensic Financial
+            <br />
+            Intelligence
+          </h1>
+
+          <p className="max-w-lg text-[15px] text-muted-foreground leading-relaxed">
+            Quantitative analysis of financial statements using Beneish M-Score,
+            Benford&apos;s Law, ratio benchmarking, and systematic red-flag
+            detection.
           </p>
-          <p className="max-w-xl text-sm text-muted-foreground/80 leading-relaxed">
-            AuditPilot runs quantitative forensic analysis on company financial
-            statements — applying Benford&apos;s Law, the Beneish M-Score, ratio
-            benchmarking, and red-flag detection. Upload your own CSV or explore
-            one of the pre-loaded case studies below.
-          </p>
+
+          {/* Feature stats */}
+          <div className="flex items-center gap-px mt-2 rounded-lg border border-white/6 overflow-hidden bg-white/[0.02]">
+            {FEATURE_STATS.map((stat, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center px-5 py-3 border-r border-white/6 last:border-r-0"
+              >
+                <span className="text-base font-bold text-foreground tabular-nums">
+                  {stat.value}
+                </span>
+                <span className="text-[11px] text-muted-foreground mt-0.5 whitespace-nowrap">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Company cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {COMPANIES.map((company) => (
-            <button
-              key={company.id}
-              onClick={() => router.push(`/dashboard?company=${company.id}`)}
-              className={`rounded-lg border-2 bg-card p-5 text-left transition-colors ${company.accentClass}`}
-            >
-              <p className="text-xl font-semibold text-foreground">
-                {company.name}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {company.type} &bull; {company.years}
-              </p>
-              <p className="mt-3 text-sm text-muted-foreground/80">
-                {company.description}
-              </p>
-            </button>
-          ))}
-        </div>
-
-        {/* Upload zone */}
+        {/* Case studies */}
         <div className="space-y-3">
-          <p className="text-center text-sm text-muted-foreground">
-            Or upload your own financial statements
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+            Case Studies
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {COMPANIES.map((company) => (
+              <button
+                key={company.id}
+                onClick={() => router.push(`/dashboard?company=${company.id}`)}
+                className={`group card-glass rounded-lg border p-5 text-left transition-all duration-200 hover:bg-white/[0.04] ${riskAccent(company.riskLevel)}`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground leading-snug">
+                      {company.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {company.ticker} &middot; {company.type}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0 mt-0.5" />
+                </div>
+                <p className="text-xs text-muted-foreground/70 leading-relaxed mb-3">
+                  {company.description}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-muted-foreground font-medium tabular-nums">
+                    {company.years}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${riskDot(company.riskLevel)}`}
+                    />
+                    <span className="text-[11px] text-muted-foreground">
+                      {riskLabel(company.riskLevel)}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Import section */}
+        <div className="space-y-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+            Import Financial Data
           </p>
           <UploadZone onFileSelect={handleFileSelect} />
         </div>

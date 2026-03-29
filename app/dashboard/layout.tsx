@@ -56,7 +56,7 @@ function DashboardInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Sidebar companyName={companyName} riskScore={riskScore} />
-      <main className="ml-0 md:ml-64 p-4 md:p-8 pb-20 md:pb-8">{children}</main>
+      <main className="ml-0 md:ml-56 p-4 md:p-8 pb-20 md:pb-8">{children}</main>
     </div>
   );
 }
