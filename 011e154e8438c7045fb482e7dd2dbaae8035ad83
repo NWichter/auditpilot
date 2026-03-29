@@ -1,0 +1,31 @@
+app/dashboard/layout.tsx
+  58e2c1a98cefc3ba 59
+app/globals.css
+  58e2c1a98cefc3ba 4-9,11-21,23-25,33,37-102
+app/dashboard/page.tsx
+  58e2c1a98cefc3ba 13-14,31,33-34,38-40,45,47-48,53,55-56,68,70,72,92-113,117-128,197-198,200,203-205,210,214,217,268,270-272,277,284-309,312-314,317,321-344,347-348,351,356,359,368,372,379,381,383-384,386-387,389,391-396,399-400,405-450
+components/sidebar.tsx
+  58e2c1a98cefc3ba 12,27,30-34,37-41,45-47,57-75,78,81,84,87,93-94,100,111,113-114,117-120,128-130,136,148,151,155-156
+app/page.tsx
+  58e2c1a98cefc3ba 4-7,17,21,27-29,31-32,36-38,40-41,45-47,49-50,54-78,96-104,106,108-109,111,113-117,120-136,139-144,149-153,156-162,164-178,180,183,185-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "011e154e8438c7045fb482e7dd2dbaae8035ad83",
+  "prompts": {
+    "58e2c1a98cefc3ba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "22c8fe49-7f8d-4dcc-96db-b58143c6fc6e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Niklas Wichter <niklas.wichter@neotube.de>",
+      "messages": [],
+      "total_additions": 503,
+      "total_deletions": 314,
+      "accepted_lines": 458,
+      "overriden_lines": 3
+    }
+  }
+}
