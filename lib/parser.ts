@@ -1,4 +1,7 @@
 import type { FinancialData, YearStatement } from "./types";
+import enronData from "@/data/enron.json";
+import appleData from "@/data/apple.json";
+import worldcomData from "@/data/worldcom.json";
 
 // Maps flexible CSV field names to canonical YearStatement keys
 const ITEM_MAP: Record<string, keyof YearStatement> = {
@@ -287,27 +290,17 @@ export function parseCSV(csv: string, companyName: string): FinancialData {
 }
 
 /**
- * Load company data from /data/*.json files (Next.js public data folder).
- * Only works in Node.js / server context.
+ * Load company data from static JSON imports.
+ * Works in both client and server contexts.
  */
-export async function loadCompanyData(
-  name: string,
-): Promise<FinancialData | null> {
-  try {
-    // Dynamic import to avoid bundling issues
-    const fs = await import("fs/promises");
-    const path = await import("path");
-    const filePath = path.join(
-      process.cwd(),
-      "data",
-      `${name.toLowerCase().replace(/\s+/g, "_")}.json`,
-    );
-    const raw = await fs.readFile(filePath, "utf-8");
-    const parsed = JSON.parse(raw) as FinancialData;
-    return parsed;
-  } catch {
-    return null;
-  }
+const COMPANY_DATA: Record<string, FinancialData> = {
+  enron: enronData as unknown as FinancialData,
+  apple: appleData as unknown as FinancialData,
+  worldcom: worldcomData as unknown as FinancialData,
+};
+
+export function loadCompanyData(name: string): FinancialData | null {
+  return COMPANY_DATA[name.toLowerCase()] || null;
 }
 
 export interface ValidationError {
