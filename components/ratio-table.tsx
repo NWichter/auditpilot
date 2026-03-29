@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { LineChart, Line, YAxis, ResponsiveContainer } from "recharts";
 import type { RatioResult } from "@/lib/types";
 
 interface RatioTableProps {
@@ -29,13 +29,13 @@ function Sparkline({ values }: { values: number[] }) {
   return (
     <ResponsiveContainer width={60} height={24}>
       <LineChart data={data}>
+        <YAxis domain={[min, max]} hide />
         <Line
           type="monotone"
           dataKey="v"
           stroke={color}
           dot={false}
           strokeWidth={1.5}
-          domain={[min, max]}
           isAnimationActive={false}
         />
       </LineChart>

@@ -106,7 +106,6 @@ export function BenfordChart({ data }: BenfordChartProps) {
             <Cell
               key={`cell-${index}`}
               fill={entry.isConforming ? "#22c55e" : "#ef4444"}
-              animationBegin={index * 50}
             />
           ))}
         </Bar>

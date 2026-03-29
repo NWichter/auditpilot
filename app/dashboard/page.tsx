@@ -255,7 +255,7 @@ export default function DashboardPage() {
                   }}
                   labelStyle={{ color: "#94a3b8" }}
                   itemStyle={{ color: "#e2e8f0" }}
-                  formatter={(v: number) => [`${v}%`]}
+                  formatter={(v) => [`${v}%`]}
                 />
                 <Bar
                   dataKey="expected"
@@ -391,7 +391,7 @@ export default function DashboardPage() {
                   }}
                   labelStyle={{ color: "#94a3b8" }}
                   itemStyle={{ color: "#e2e8f0" }}
-                  formatter={(v: number) => [formatMillions(v)]}
+                  formatter={(v) => [formatMillions(v as number)]}
                 />
                 <Line
                   type="monotone"

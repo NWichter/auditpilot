@@ -249,7 +249,8 @@ export function parseCSV(csv: string, companyName: string): FinancialData {
     }
 
     const stmt = yearMap.get(year)!;
-    (stmt as Record<string, number>)[canonicalKey] = parseNumber(valueRaw);
+    (stmt as unknown as Record<string, number>)[canonicalKey] =
+      parseNumber(valueRaw);
   }
 
   // Sort statements by year
