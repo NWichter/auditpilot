@@ -1,39 +1,48 @@
 # AuditPilot
 
-**Forensic Financial Intelligence — Upload a spreadsheet, get a fraud risk report.**
+**Forensic Financial Intelligence**
 
-AuditPilot is an open-source forensic accounting tool that applies Benford's Law, the Beneish M-Score, 30+ financial ratios, and AI-powered narrative analysis to detect earnings manipulation and red flags in corporate financial statements. Upload a CSV of annual financials, and AuditPilot generates a comprehensive risk report with PDF export — no backend required.
+AuditPilot is a forensic accounting platform that detects earnings manipulation in corporate financial statements. It applies Benford's Law, the Beneish M-Score (8-variable model), 30 financial ratios, and 15 red-flag indicators to produce a comprehensive fraud risk assessment. All core analysis runs client-side — no backend required.
 
 ---
 
 ## Screenshots
 
-![Dashboard](screenshots/dashboard.png)
-![Timeline Analysis](screenshots/timeline.png)
-![PDF Report](screenshots/report.png)
+| Landing                                | Dashboard (Enron)                                |
+| -------------------------------------- | ------------------------------------------------ |
+| ![Landing](screenshots/01-landing.png) | ![Dashboard](screenshots/02-dashboard-enron.png) |
+
+| Benford's Law                          | Financial Ratios                     |
+| -------------------------------------- | ------------------------------------ |
+| ![Benford](screenshots/03-benford.png) | ![Ratios](screenshots/04-ratios.png) |
+
+| Fraud Risk Assessment                     | Dashboard (Apple — Clean)                    |
+| ----------------------------------------- | -------------------------------------------- |
+| ![Red Flags](screenshots/05-redflags.png) | ![Apple](screenshots/08-dashboard-apple.png) |
 
 ---
 
 ## Features
 
-- **Benford's Law Analysis** — First-digit frequency test across revenue, expenses, and other line items with chi-square significance testing
-- **Beneish M-Score** — Eight-factor model for detecting earnings manipulation; flags companies likely to be manipulators
-- **30+ Financial Ratios** — Liquidity, leverage, profitability, efficiency, and cash flow quality ratios with year-over-year trend tracking
-- **Red Flag Detection** — Automated rule-based alerts for anomalies like revenue/cash flow divergence, accruals spikes, and DSO deterioration
-- **AI Narrative Report** — LLM-generated executive summary via OpenRouter, synthesizing all findings into a structured risk assessment
-- **PDF Export** — One-click export of the full analysis report
-- **Trend Analysis** — Interactive normalized multi-metric timeline chart with statistical outlier detection
+- **Benford's Law Analysis** — First-digit frequency test with chi-squared significance testing
+- **Beneish M-Score** — 8-variable model for detecting earnings manipulation (DSRI, GMI, AQI, SGI, DEPI, SGAI, TATA, LVGI)
+- **30 Financial Ratios** — Liquidity, profitability, leverage, efficiency, and quality metrics with sector benchmarks and sparkline trends
+- **15 Red Flag Indicators** — Automated detection of revenue/cash flow divergence, accruals anomalies, DSO spikes, and more
+- **AI Audit Report** — LLM-generated forensic audit memo via OpenRouter
+- **Trend Analysis** — Multi-metric normalized timeline with statistical outlier detection
+- **Pre-loaded Case Studies** — Enron (1997-2001), Apple (2019-2023), WorldCom (1999-2002)
+- **CSV Upload** — Analyze any company with custom financial data
 
 ---
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 14 (App Router)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS v4
 - **Charts:** Recharts
-- **AI:** OpenRouter API (any compatible LLM)
-- **Stats:** jStat
+- **Statistics:** jStat (chi-squared distribution)
+- **AI:** OpenRouter API (Claude)
 - **Icons:** Lucide React
 
 ---
@@ -41,31 +50,25 @@ AuditPilot is an open-source forensic accounting tool that applies Benford's Law
 ## Quick Start
 
 ```bash
-git clone https://github.com/your-username/auditpilot.git
+git clone https://github.com/NWichter-NeoTube/auditpilot.git
 cd auditpilot
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) and select **Enron Corporation** to see the fraud detection in action.
 
 ---
 
 ## Environment Setup
 
-Create a `.env.local` file in the project root:
+Create a `.env.local` file for the optional AI report feature:
 
 ```env
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_API_KEY=your_key_here
 ```
 
-Get a free API key at [openrouter.ai](https://openrouter.ai). The AI report feature requires this key; all other analysis runs entirely client-side.
-
----
-
-## Demo
-
-The app ships with pre-loaded **Enron Corporation** financials (1996–2001). Click **"Load Demo Data"** on the upload screen to instantly explore a real-world fraud case — no file upload needed.
+All core analysis (Benford, Beneish, Ratios, Red Flags) works without an API key. The AI report feature requires an [OpenRouter](https://openrouter.ai) key.
 
 ---
 
@@ -75,4 +78,4 @@ MIT
 
 ---
 
-_Built for the [GitHub Octoverse Hackathon](https://github.blog/)_
+_Built for the Octoverse Hackathon 2026_
