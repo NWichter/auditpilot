@@ -1,0 +1,23 @@
+README.md
+  58e2c1a98cefc3ba 61-62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "a835817333c776b66a5231a0d9fb1ef61119a9ab",
+  "prompts": {
+    "58e2c1a98cefc3ba": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "22c8fe49-7f8d-4dcc-96db-b58143c6fc6e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Niklas Wichter <niklas.wichter@neotube.de>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 0,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
