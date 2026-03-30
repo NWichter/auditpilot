@@ -58,6 +58,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and select **Enron Corporation** to see the fraud detection in action.
 
+**Live Demo:** [auditpilot.sorevo.de](https://auditpilot.sorevo.de)
+
 ---
 
 ## Environment Setup
