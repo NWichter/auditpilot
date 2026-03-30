@@ -50,7 +50,7 @@ AuditPilot is a forensic accounting platform that detects earnings manipulation 
 ## Quick Start
 
 ```bash
-git clone https://github.com/NWichter-NeoTube/auditpilot.git
+git clone https://github.com/NWichter/auditpilot.git
 cd auditpilot
 npm install
 npm run dev
