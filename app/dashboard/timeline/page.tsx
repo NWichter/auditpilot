@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useAnalysis } from "@/lib/analysis-context";
 import { TimelineChart } from "@/components/timeline-chart";
+import { Info } from "lucide-react";
 
 function detectOutliersWithMeta(
   values: number[],
@@ -29,10 +30,10 @@ function detectOutliersWithMeta(
 
 function LoadingSkeleton() {
   return (
-    <div className="animate-pulse space-y-4 p-6">
-      <div className="h-8 w-72 rounded bg-slate-700" />
-      <div className="h-[500px] rounded bg-slate-800" />
-      <div className="h-48 rounded bg-slate-800" />
+    <div className="animate-pulse space-y-6 p-6">
+      <div className="h-7 w-72 rounded-md bg-white/5" />
+      <div className="h-[500px] rounded-xl bg-white/[0.03]" />
+      <div className="h-48 rounded-xl bg-white/[0.03]" />
     </div>
   );
 }
@@ -84,13 +85,15 @@ export default function TimelinePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Trend Analysis</h1>
-          <p className="text-sm text-slate-400 mt-0.5">{yearRange}</p>
+          <h1 className="text-2xl font-semibold text-slate-100">
+            Trend Analysis
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">{yearRange}</p>
         </div>
       </div>
 
       {/* Timeline chart */}
-      <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
+      <div className="card-glass rounded-xl p-5">
         <div className="h-[500px] w-full">
           <TimelineChart data={data} />
         </div>
@@ -98,35 +101,38 @@ export default function TimelinePage() {
 
       {/* Insight */}
       {inflectionYears.length > 0 && (
-        <div className="rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-3 text-sm text-slate-300">
-          Key inflection points detected in years:{" "}
-          <span className="font-semibold text-slate-100">
-            {inflectionYears.join(", ")}
-          </span>
+        <div className="flex items-start gap-3 card-glass rounded-xl px-4 py-3">
+          <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-400/70" />
+          <p className="text-sm text-slate-400">
+            Key inflection points detected in{" "}
+            <span className="font-medium text-slate-200">
+              {inflectionYears.join(", ")}
+            </span>
+          </p>
         </div>
       )}
 
       {/* Anomaly table */}
       {anomalies.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-lg font-semibold text-slate-200">
+        <div className="space-y-3">
+          <h2 className="text-sm font-medium uppercase tracking-wider text-slate-500">
             Detected Anomalies
           </h2>
-          <div className="rounded-lg border border-slate-700 bg-slate-900 overflow-hidden">
+          <div className="card-glass rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-700 bg-slate-800/50">
-                  <th className="px-4 py-2 text-left text-xs text-slate-400">
+                <tr className="border-b border-white/[0.06]">
+                  <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                     Year
                   </th>
-                  <th className="px-4 py-2 text-left text-xs text-slate-400">
+                  <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                     Metric
                   </th>
-                  <th className="px-4 py-2 text-right text-xs text-slate-400">
+                  <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500">
                     Value
                   </th>
-                  <th className="px-4 py-2 text-right text-xs text-slate-400">
-                    Deviation (σ)
+                  <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-slate-500">
+                    Deviation
                   </th>
                 </tr>
               </thead>
@@ -134,20 +140,24 @@ export default function TimelinePage() {
                 {anomalies.map((a, i) => (
                   <tr
                     key={i}
-                    className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors"
+                    className={`border-t border-white/[0.04] transition-colors duration-200 hover:bg-white/[0.02] ${
+                      i % 2 === 0 ? "" : "bg-white/[0.01]"
+                    }`}
                   >
-                    <td className="px-4 py-2 font-mono text-slate-300">
+                    <td className="px-5 py-3 font-mono tabular-nums text-slate-300">
                       {a.year}
                     </td>
-                    <td className="px-4 py-2 text-slate-400">{a.metric}</td>
-                    <td className="px-4 py-2 text-right font-mono text-slate-200">
+                    <td className="px-5 py-3 text-slate-400">{a.metric}</td>
+                    <td className="px-5 py-3 text-right font-mono tabular-nums text-slate-200">
                       {Math.abs(a.value) >= 1e6
                         ? `$${(a.value / 1e6).toFixed(1)}M`
                         : a.value.toFixed(2)}
                     </td>
-                    <td className="px-4 py-2 text-right">
+                    <td className="px-5 py-3 text-right">
                       <span
-                        className={`font-mono text-sm ${a.deviation > 3 ? "text-red-400" : "text-yellow-400"}`}
+                        className={`font-mono tabular-nums text-sm ${
+                          a.deviation > 3 ? "text-red-400" : "text-amber-400"
+                        }`}
                       >
                         {a.deviation.toFixed(2)}σ
                       </span>
@@ -161,7 +171,7 @@ export default function TimelinePage() {
       )}
 
       {anomalies.length === 0 && (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600">
           No significant anomalies detected across metrics.
         </p>
       )}

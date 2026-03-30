@@ -3,30 +3,32 @@
 import { useState } from "react";
 import { useAnalysis } from "@/lib/analysis-context";
 import { BenfordChart } from "@/components/benford-chart";
+import { ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 
 const VERDICT_CONFIG = {
   conforming: {
     label: "Conforming",
-    className: "bg-green-900 text-green-300 border border-green-700",
+    className:
+      "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
   },
   suspicious: {
     label: "Suspicious",
-    className: "bg-yellow-900 text-yellow-300 border border-yellow-700",
+    className: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
   },
   non_conforming: {
     label: "Non-Conforming",
-    className: "bg-red-900 text-red-300 border border-red-700",
+    className: "bg-red-500/10 text-red-400 border border-red-500/20",
   },
 };
 
 function LoadingSkeleton() {
   return (
-    <div className="animate-pulse space-y-4 p-6">
-      <div className="h-8 w-64 rounded bg-slate-700" />
-      <div className="h-96 rounded bg-slate-800" />
+    <div className="animate-pulse space-y-6 p-6">
+      <div className="h-7 w-64 rounded-md bg-white/5" />
+      <div className="h-96 rounded-xl bg-white/[0.03]" />
       <div className="grid grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-20 rounded bg-slate-800" />
+          <div key={i} className="h-24 rounded-xl bg-white/[0.03]" />
         ))}
       </div>
     </div>
@@ -45,16 +47,27 @@ export default function BenfordPage() {
     benford.pValue < 0.0001 ? "<0.0001" : benford.pValue.toFixed(4);
   const confidence =
     benford.pValue > 0.05 ? "High" : benford.pValue > 0.01 ? "Medium" : "Low";
+  const confidenceClass =
+    confidence === "High"
+      ? "text-emerald-400"
+      : confidence === "Medium"
+        ? "text-amber-400"
+        : "text-red-400";
 
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-100">
-          Benford's Law Analysis
-        </h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-100">
+            Benford&apos;s Law Analysis
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            First-digit frequency distribution
+          </p>
+        </div>
         <span
-          className={`rounded-full px-3 py-1 text-sm font-medium ${verdict.className}`}
+          className={`rounded-full px-3 py-1 text-xs font-medium tracking-wide ${verdict.className}`}
         >
           {verdict.label}
         </span>
@@ -62,16 +75,16 @@ export default function BenfordPage() {
 
       {/* Non-conforming alert */}
       {benford.verdict === "non_conforming" && (
-        <div className="flex items-center gap-3 rounded border border-red-700 bg-red-950 px-4 py-3 text-red-300">
-          <span className="text-lg">⚠</span>
-          <span className="font-medium">
-            Significant deviation from expected distribution
+        <div className="flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/[0.06] px-4 py-3">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0 text-red-400" />
+          <span className="text-sm text-red-400">
+            Significant deviation from expected distribution detected
           </span>
         </div>
       )}
 
       {/* Chart */}
-      <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
+      <div className="card-glass rounded-xl p-5">
         <div className="h-96 w-full">
           <BenfordChart data={benford} />
         </div>
@@ -79,59 +92,80 @@ export default function BenfordPage() {
 
       {/* Stats panel */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Chi² Value</p>
-          <p className="mt-1 text-xl font-bold text-slate-100">
-            {benford.chiSquared.toFixed(3)}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">p-Value</p>
-          <p className="mt-1 text-xl font-bold text-slate-100">{pFormatted}</p>
-        </div>
-        <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Sample Size</p>
-          <p className="mt-1 text-xl font-bold text-slate-100">
-            {benford.sampleSize.toLocaleString()}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Confidence Level</p>
-          <p
-            className={`mt-1 text-xl font-bold ${confidence === "High" ? "text-green-400" : confidence === "Medium" ? "text-yellow-400" : "text-red-400"}`}
-          >
-            {confidence}
-          </p>
-        </div>
+        {[
+          {
+            label: "Chi² Value",
+            value: benford.chiSquared.toFixed(3),
+            valueClass: "text-slate-100",
+          },
+          {
+            label: "p-Value",
+            value: pFormatted,
+            valueClass: "text-slate-100",
+          },
+          {
+            label: "Sample Size",
+            value: benford.sampleSize.toLocaleString(),
+            valueClass: "text-slate-100",
+          },
+          {
+            label: "Confidence Level",
+            value: confidence,
+            valueClass: confidenceClass,
+          },
+        ].map(({ label, value, valueClass }) => (
+          <div key={label} className="card-glass rounded-xl p-5">
+            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+              {label}
+            </p>
+            <p
+              className={`mt-2 font-mono text-2xl font-semibold tabular-nums ${valueClass}`}
+            >
+              {value}
+            </p>
+          </div>
+        ))}
       </div>
 
       {/* Collapsible explainer */}
-      <div className="rounded-lg border border-slate-700 bg-slate-900">
+      <div className="card-glass rounded-xl overflow-hidden">
         <button
           onClick={() => setExplainerOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-slate-300 hover:text-slate-100"
+          className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-white/[0.02]"
         >
-          <span>What is Benford's Law?</span>
-          <span className="text-slate-500">{explainerOpen ? "▲" : "▼"}</span>
+          <span className="text-sm font-medium text-slate-300">
+            What is Benford&apos;s Law?
+          </span>
+          {explainerOpen ? (
+            <ChevronUp className="h-4 w-4 text-slate-500" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-slate-500" />
+          )}
         </button>
-        {explainerOpen && (
-          <div className="border-t border-slate-700 px-4 py-4 text-sm leading-relaxed text-slate-400">
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            explainerOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="border-t border-white/[0.06] px-5 py-4 text-sm leading-relaxed text-slate-400 space-y-2">
             <p>
-              Benford's Law states that in many naturally occurring datasets,
-              the leading digit is 1 about 30% of the time, digit 2 about 17.6%,
-              and so on — decreasing logarithmically. This pattern emerges in
-              financial figures, population numbers, and river lengths.
+              Benford&apos;s Law states that in many naturally occurring
+              datasets, the leading digit is 1 about 30% of the time, digit 2
+              about 17.6%, and so on — decreasing logarithmically. This pattern
+              emerges in financial figures, population numbers, and river
+              lengths.
             </p>
-            <p className="mt-2">
-              When a company's financial figures deviate significantly from this
-              expected distribution, it may indicate manipulation, rounding, or
-              fabrication of numbers — since fabricated data tends to use digits
-              more uniformly. The Chi-squared test measures how far the observed
-              distribution diverges from the expected one; a low p-value (below
-              0.05) suggests the deviation is statistically significant.
+            <p>
+              When a company&apos;s financial figures deviate significantly from
+              this expected distribution, it may indicate manipulation,
+              rounding, or fabrication of numbers — since fabricated data tends
+              to use digits more uniformly. The Chi-squared test measures how
+              far the observed distribution diverges from the expected one; a
+              low p-value (below 0.05) suggests the deviation is statistically
+              significant.
             </p>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

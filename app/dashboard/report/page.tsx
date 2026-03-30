@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAnalysis } from "@/lib/analysis-context";
+import { Sparkles, Loader2 } from "lucide-react";
 
 function riskLabel(score: number) {
   if (score >= 66) return "HIGH";
@@ -43,10 +44,10 @@ function buildAlgorithmicReport(
 
 function LoadingSkeleton() {
   return (
-    <div className="animate-pulse space-y-4 p-6">
-      <div className="h-8 w-64 rounded bg-slate-700" />
-      <div className="h-32 rounded bg-slate-800" />
-      <div className="h-64 rounded bg-slate-800" />
+    <div className="animate-pulse space-y-6 p-6">
+      <div className="h-7 w-64 rounded-md bg-white/5" />
+      <div className="h-32 rounded-xl bg-white/[0.03]" />
+      <div className="h-64 rounded-xl bg-white/[0.03]" />
     </div>
   );
 }
@@ -61,12 +62,19 @@ export default function ReportPage() {
 
   const { summary, findings, level } = buildAlgorithmicReport(result);
 
-  const levelColor =
+  const levelClass =
     level === "HIGH"
       ? "text-red-400"
       : level === "MEDIUM"
-        ? "text-yellow-400"
-        : "text-green-400";
+        ? "text-amber-400"
+        : "text-emerald-400";
+
+  const levelBadgeClass =
+    level === "HIGH"
+      ? "bg-red-500/10 text-red-400 border-red-500/20"
+      : level === "MEDIUM"
+        ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+        : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
 
   const generateAI = async () => {
     setIsGenerating(true);
@@ -94,46 +102,55 @@ export default function ReportPage() {
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-100">
-          Forensic Audit Report
-        </h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-100">
+            Forensic Audit Report
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            {result.company.companyName}
+          </p>
+        </div>
         <button
           onClick={generateAI}
           disabled={isGenerating}
-          className="flex items-center gap-2 rounded-lg border border-blue-600 bg-blue-900/40 px-4 py-2 text-sm font-medium text-blue-300 transition-colors hover:bg-blue-800/50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 transition-all duration-200 hover:bg-white/[0.07] hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isGenerating ? (
             <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
-              Generating...
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating…
             </>
           ) : (
-            "Generate AI Report"
+            <>
+              <Sparkles className="h-4 w-4 text-blue-400" />
+              Generate AI Report
+            </>
           )}
         </button>
       </div>
 
       {error && (
-        <div className="rounded border border-red-700 bg-red-950 px-4 py-3 text-sm text-red-300">
-          Error: {error}
+        <div className="rounded-lg border border-red-500/20 bg-red-500/[0.06] px-4 py-3 text-sm text-red-400">
+          {error}
         </div>
       )}
 
-      {/* AI Report (replaces fallback when available) */}
+      {/* AI Report */}
       {aiReport ? (
-        <div className="rounded-lg border border-blue-700 bg-slate-900 p-6">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="rounded-full border border-blue-700 bg-blue-900/40 px-2 py-0.5 text-xs font-medium text-blue-300">
+        <div className="card-glass rounded-xl">
+          <div className="flex items-center gap-2 border-b border-white/[0.06] px-6 py-4">
+            <Sparkles className="h-4 w-4 text-blue-400" />
+            <span className="text-xs font-medium text-blue-400">
               AI Generated
             </span>
           </div>
-          <div className="prose prose-invert prose-sm max-w-none">
+          <div className="mx-auto max-w-3xl px-8 py-8">
             {aiReport.split("\n").map((line, i) => {
               if (line.startsWith("## ")) {
                 return (
                   <h2
                     key={i}
-                    className="mt-6 mb-2 text-lg font-semibold text-slate-100"
+                    className="mb-3 mt-8 text-base font-semibold text-slate-100 first:mt-0"
                   >
                     {line.slice(3)}
                   </h2>
@@ -143,7 +160,7 @@ export default function ReportPage() {
                 return (
                   <h3
                     key={i}
-                    className="mt-4 mb-1 text-base font-medium text-slate-200"
+                    className="mb-2 mt-5 text-sm font-semibold text-slate-200"
                   >
                     {line.slice(4)}
                   </h3>
@@ -151,24 +168,28 @@ export default function ReportPage() {
               }
               if (line.startsWith("- ")) {
                 return (
-                  <p
+                  <div
                     key={i}
-                    className="ml-4 text-slate-300 before:mr-2 before:content-['•']"
+                    className="mb-1.5 flex items-start gap-2 text-sm text-slate-400"
                   >
-                    {line.slice(2)}
-                  </p>
+                    <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-slate-600" />
+                    <span>{line.slice(2)}</span>
+                  </div>
                 );
               }
               if (line.startsWith("**") && line.endsWith("**")) {
                 return (
-                  <p key={i} className="font-semibold text-slate-200">
+                  <p key={i} className="mb-2 font-medium text-slate-200">
                     {line.slice(2, -2)}
                   </p>
                 );
               }
-              if (line.trim() === "") return <div key={i} className="h-2" />;
+              if (line.trim() === "") return <div key={i} className="h-3" />;
               return (
-                <p key={i} className="text-slate-300 leading-relaxed">
+                <p
+                  key={i}
+                  className="mb-2 text-sm leading-relaxed text-slate-400"
+                >
                   {line}
                 </p>
               );
@@ -177,46 +198,54 @@ export default function ReportPage() {
         </div>
       ) : (
         /* Algorithmic fallback report */
-        <div className="space-y-4">
+        <div className="mx-auto max-w-3xl space-y-4">
           {/* Executive Summary */}
-          <div className="rounded-lg border border-slate-700 bg-slate-900 p-6">
-            <h2 className="mb-3 text-base font-semibold text-slate-200">
-              Executive Summary
-            </h2>
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-xs text-slate-400">Risk Level:</span>
-              <span className={`text-sm font-bold ${levelColor}`}>{level}</span>
-              <span className="text-xs text-slate-500">
-                ({result.riskScore.overall}/100)
+          <div className="card-glass rounded-xl p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
+                Executive Summary
+              </h2>
+              <span
+                className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${levelBadgeClass}`}
+              >
+                {level} RISK
               </span>
             </div>
-            <p className="text-sm leading-relaxed text-slate-300">{summary}</p>
+            <div className="mb-3 flex items-baseline gap-2">
+              <span
+                className={`font-mono text-3xl font-semibold tabular-nums ${levelClass}`}
+              >
+                {result.riskScore.overall}
+              </span>
+              <span className="text-sm text-slate-500">/ 100</span>
+            </div>
+            <p className="text-sm leading-relaxed text-slate-400">{summary}</p>
           </div>
 
           {/* Key Findings */}
           {findings.length > 0 && (
-            <div className="rounded-lg border border-slate-700 bg-slate-900 p-6">
-              <h2 className="mb-3 text-base font-semibold text-slate-200">
+            <div className="card-glass rounded-xl p-6">
+              <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">
                 Key Findings
               </h2>
-              <ul className="space-y-2">
+              <div className="space-y-2.5">
                 {findings.map((f, i) => (
-                  <li
+                  <div
                     key={i}
-                    className="flex items-start gap-2 text-sm text-slate-300"
+                    className="flex items-start gap-3 rounded-lg bg-white/[0.02] px-3 py-2.5"
                   >
-                    <span className="mt-0.5 text-red-400">•</span>
-                    <span>{f}</span>
-                  </li>
+                    <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-red-500/60" />
+                    <span className="text-sm text-slate-400">{f}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
           {/* Risk Assessment */}
-          <div className="rounded-lg border border-slate-700 bg-slate-900 p-6">
-            <h2 className="mb-3 text-base font-semibold text-slate-200">
-              Risk Assessment
+          <div className="card-glass rounded-xl p-6">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">
+              Component Scores
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
@@ -229,16 +258,25 @@ export default function ReportPage() {
                 { label: "Ratios", score: result.riskScore.ratioScore },
               ].map(({ label, score }) => {
                 const pct = score / 25;
-                const color =
-                  pct >= 0.66 ? "#ef4444" : pct >= 0.33 ? "#eab308" : "#22c55e";
+                const cls =
+                  pct >= 0.66
+                    ? "text-red-400"
+                    : pct >= 0.33
+                      ? "text-amber-400"
+                      : "text-emerald-400";
                 return (
-                  <div key={label} className="rounded-lg bg-slate-800 p-3">
-                    <p className="text-xs text-slate-400 mb-1">{label}</p>
+                  <div
+                    key={label}
+                    className="rounded-lg bg-white/[0.02] p-4 text-center"
+                  >
+                    <p className="mb-2 text-xs text-slate-500">{label}</p>
                     <p
-                      className="text-xl font-bold font-mono"
-                      style={{ color }}
+                      className={`font-mono text-xl font-semibold tabular-nums ${cls}`}
                     >
-                      {score}/25
+                      {score}
+                      <span className="text-sm font-normal text-slate-600">
+                        /25
+                      </span>
                     </p>
                   </div>
                 );
@@ -246,9 +284,9 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <p className="text-xs text-slate-500 text-center">
-            Click "Generate AI Report" above for a detailed forensic analysis
-            powered by Claude.
+          <p className="text-center text-xs text-slate-600">
+            Use &ldquo;Generate AI Report&rdquo; above for a detailed forensic
+            analysis powered by Claude.
           </p>
         </div>
       )}

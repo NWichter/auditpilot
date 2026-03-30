@@ -7,15 +7,16 @@ import { RedflagsList } from "@/components/redflags-list";
 const RISK_BADGE = {
   low: {
     label: "Low Risk",
-    className: "bg-green-900 text-green-300 border border-green-700",
+    className:
+      "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
   },
   medium: {
     label: "Medium Risk",
-    className: "bg-yellow-900 text-yellow-300 border border-yellow-700",
+    className: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
   },
   high: {
     label: "High Risk",
-    className: "bg-red-900 text-red-300 border border-red-700",
+    className: "bg-red-500/10 text-red-400 border border-red-500/20",
   },
 };
 
@@ -35,15 +36,22 @@ function ScoreBar({
   color: string;
 }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <div className="flex justify-between text-xs">
-        <span className="text-slate-400">{label}</span>
-        <span className="font-mono text-slate-200">{value}/25</span>
+        <span className="text-slate-500">{label}</span>
+        <span className="font-mono tabular-nums text-slate-300">
+          {value}
+          <span className="text-slate-600">/25</span>
+        </span>
       </div>
-      <div className="h-2 w-full rounded-full bg-slate-800">
+      <div className="h-1.5 w-full rounded-full bg-white/[0.04]">
         <div
-          className="h-2 rounded-full transition-all duration-700"
-          style={{ width: `${(value / 25) * 100}%`, backgroundColor: color }}
+          className="h-1.5 rounded-full transition-all duration-700"
+          style={{
+            width: `${(value / 25) * 100}%`,
+            backgroundColor: color,
+            opacity: 0.7,
+          }}
         />
       </div>
     </div>
@@ -52,13 +60,13 @@ function ScoreBar({
 
 function LoadingSkeleton() {
   return (
-    <div className="animate-pulse space-y-4 p-6">
-      <div className="h-8 w-80 rounded bg-slate-700" />
+    <div className="animate-pulse space-y-6 p-6">
+      <div className="h-7 w-80 rounded-md bg-white/5" />
       <div className="grid grid-cols-2 gap-4">
-        <div className="h-72 rounded bg-slate-800" />
-        <div className="h-72 rounded bg-slate-800" />
+        <div className="h-72 rounded-xl bg-white/[0.03]" />
+        <div className="h-72 rounded-xl bg-white/[0.03]" />
       </div>
-      <div className="h-96 rounded bg-slate-800" />
+      <div className="h-96 rounded-xl bg-white/[0.03]" />
     </div>
   );
 }
@@ -74,43 +82,50 @@ export default function RedflagsPage() {
 
   const scoreBarColor = (v: number) => {
     const pct = v / 25;
-    if (pct >= 0.66) return "#ef4444";
-    if (pct >= 0.33) return "#eab308";
-    return "#22c55e";
+    if (pct >= 0.66) return "#f87171";
+    if (pct >= 0.33) return "#fbbf24";
+    return "#4ade80";
   };
+
+  const scoreNumColor =
+    level === "high"
+      ? "text-red-400"
+      : level === "medium"
+        ? "text-amber-400"
+        : "text-emerald-400";
 
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-100">
-          Fraud Risk Assessment
-        </h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-100">
+            Fraud Risk Assessment
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            <span className="text-slate-300">
+              {redFlags.triggeredCount} of {redFlags.flags.length}
+            </span>{" "}
+            indicators triggered
+            {redFlags.criticalCount > 0 && (
+              <span className="text-red-400/80">
+                {" "}
+                &mdash; {redFlags.criticalCount} critical
+              </span>
+            )}
+            {redFlags.warningCount > 0 && (
+              <span className="text-amber-400/80">
+                , {redFlags.warningCount} warning
+              </span>
+            )}
+          </p>
+        </div>
         <span
-          className={`rounded-full px-3 py-1 text-sm font-medium ${badge.className}`}
+          className={`rounded-full px-3 py-1 text-xs font-medium tracking-wide ${badge.className}`}
         >
           {badge.label}
         </span>
       </div>
-
-      {/* Summary */}
-      <p className="text-sm text-slate-400">
-        <span className="font-semibold text-slate-200">
-          {redFlags.triggeredCount} of {redFlags.flags.length} indicators
-          triggered
-        </span>
-        {redFlags.criticalCount > 0 && (
-          <span className="text-red-400">
-            {" "}
-            — {redFlags.criticalCount} critical
-          </span>
-        )}
-        {redFlags.warningCount > 0 && (
-          <span className="text-yellow-400">
-            , {redFlags.warningCount} warning
-          </span>
-        )}
-      </p>
 
       {/* Top section: 2-col grid */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -120,29 +135,21 @@ export default function RedflagsPage() {
         </div>
 
         {/* Risk score breakdown */}
-        <div className="rounded-lg border border-slate-700 bg-slate-900 p-6 space-y-5">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        <div className="card-glass rounded-xl p-6 space-y-5">
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
             Risk Score Breakdown
           </p>
 
-          <div className="text-center mb-4">
+          <div className="text-center py-2">
             <span
-              className="text-5xl font-bold font-mono"
-              style={{
-                color:
-                  level === "high"
-                    ? "#ef4444"
-                    : level === "medium"
-                      ? "#eab308"
-                      : "#22c55e",
-              }}
+              className={`font-mono text-5xl font-semibold tabular-nums ${scoreNumColor}`}
             >
               {riskScore.overall}
             </span>
-            <p className="text-sm text-slate-400 mt-1">Overall Score / 100</p>
+            <p className="mt-1 text-xs text-slate-500">Overall Score / 100</p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <ScoreBar
               label="Benford's Law"
               value={riskScore.benfordScore}
@@ -168,8 +175,8 @@ export default function RedflagsPage() {
       </div>
 
       {/* Red flags list */}
-      <div>
-        <h2 className="mb-3 text-lg font-semibold text-slate-200">
+      <div className="space-y-3">
+        <h2 className="text-sm font-medium uppercase tracking-wider text-slate-500">
           Indicator Checklist
         </h2>
         <RedflagsList flags={redFlags.flags} />
